@@ -24,6 +24,15 @@ class Goal():
         self.assumptions = assumptions
         print self.assumptions
 
+    # def add_condition_to_gurantees(self, condition):
+    #     if len(self.guarantees) > 1:
+    #         guar = And(for elem in self.guarantees)
+    #         self.guarantees = [Implies(condition, self.guarantees[0])]
+    #     else:
+    #         self.guarantees = [Implies(condition, self.guarantees[0])]
+    #     print self.guarantees
+
+
     def set_guarantees(self, guarantees):
         self.guarantees = guarantees
 

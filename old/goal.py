@@ -13,7 +13,6 @@ class Goal():
 
         self.guarantees = guarantees
 
-
     def get_name(self):
         return self.name
 

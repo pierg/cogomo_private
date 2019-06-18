@@ -181,7 +181,7 @@ def compose(name, goal_contracts):
                     a_list_simplified.remove(a_elem)
                     g_list_simplified.remove(g_elem)
 
-        return True, Goal(name, a_list_simplified, g_list_simplified), None
+        return True, GoalContract(name, a_list_simplified, g_list_simplified), None
 
     else:
         return False, None, unsat_core
@@ -213,7 +213,7 @@ def conjoin(name, goal_contracts):
                     a_list_simplified.remove(a_elem)
                     g_list_simplified.remove(g_elem)
 
-        return True, Goal(name, a_list_simplified, g_list_simplified), None
+        return True, GoalContract(name, a_list_simplified, g_list_simplified), None
 
     else:
         return False, None, unsat_core

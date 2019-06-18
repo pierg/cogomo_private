@@ -38,21 +38,21 @@ a_measure_distance = [Bool('a_1') == False]
 g_measure_distance = [(d_front > 0),
                       Implies(d_front > d_real, (d_front - d_real) < delta_m),
                       Implies(d_front <= d_real, (d_real - d_front) <= delta_m)]
-c_measure_distance = Goal("measure_distance", a_measure_distance, g_measure_distance)
+c_measure_distance = GoalContract("measure_distance", a_measure_distance, g_measure_distance)
 
 a_keep_short_distance = [d_front > 0]
 g_keep_short_distance = [ForAll(d_front, If(d_front > D_platoon, vel_ego_t1 > vel_ego_t,
                             If(d_front == D_platoon, vel_ego_t1 == vel_ego_t, vel_ego_t1 < vel_ego_t)))]
-c_keep_short_distance = Goal("keep_short_distance", a_keep_short_distance, g_keep_short_distance)
+c_keep_short_distance = GoalContract("keep_short_distance", a_keep_short_distance, g_keep_short_distance)
 
 a_communicate_leader = [s_network, s_rssi > RSSI_net]
 g_communicate_leader = [v_leader >= 0, s_leader <= 1, s_leader >= -1]
-c_communicate_leader = Goal("communicate_leader", a_communicate_leader, g_communicate_leader)
+c_communicate_leader = GoalContract("communicate_leader", a_communicate_leader, g_communicate_leader)
 
 
 a_follow_leader = [v_leader >= 0]
 g_follow_leader = [vel_ego_t1 == v_leader, vel_ego_t == v_leader]
-c_follow_leader = Goal("follow_leader", a_follow_leader, g_follow_leader)
+c_follow_leader = GoalContract("follow_leader", a_follow_leader, g_follow_leader)
 
 
 # # LEADING
@@ -95,5 +95,5 @@ else:
 
     if composable:
 
-        new_goal.pretty_print_goal()
+        new_goal.pretty_print_contract()
 

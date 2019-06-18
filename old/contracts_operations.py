@@ -53,6 +53,11 @@ def compose(name, goal_contracts):
     a_composition_simplified = a_composition[:]
     g_composition_simplified = g_composition[:]
 
+
+    print "Assumptions:\n\t\t" + str(a_composition_simplified)
+    print "Guarantees:\n\n\t\t" + str(g_composition_simplified)
+
+
     print "Simplifying assumptions..."
     # Compare each element in a_composition with each element in g_composition
     for a_elem in a_composition:
@@ -62,7 +67,7 @@ def compose(name, goal_contracts):
                 a_composition_simplified.remove(a_elem)
                 g_composition_simplified.remove(g_elem)
 
-    return True, Goal(name, a_composition_simplified, g_composition_simplified)
+    return True, GoalContract(name, a_composition_simplified, g_composition_simplified)
     
     
 

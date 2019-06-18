@@ -51,6 +51,12 @@ def conjoin_goals(name, goals):
     # Flattening list
     conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
 
+    # TODO: fix checks on conjunction
+    # sat = conjoin_contracts(conjoined_contracts)
+    # if not sat:
+    #     print "conjoin failed"
+    #     return False, None
+
     # Creating a new Goal parent
     conjoined_goal = GoalContract(name, conjoined_contracts,
                                  sub_goals=goals,

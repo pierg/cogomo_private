@@ -31,6 +31,18 @@ if sat:
     print "\n\n"
     print goal_12
 
+
+# Goal 0 has a conflict with Goal 1
+goal_0 = GoalContract("goal_0", [Contract([b == False],
+                                          [d == True])])
+
+# Composing two contracts with conflict
+
+sat, goal_120 = compose_goals("goal_120", [goal_1, goal_0])
+
+
+print "\n\n"
+
 # Adding new goal (Goal 3 shares the variable d with Goal_2 as assumption)
 goal_3 = GoalContract("goal_3", [Contract([d == True],
                                           [e == True])])

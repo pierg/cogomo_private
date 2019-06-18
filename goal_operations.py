@@ -24,7 +24,7 @@ def compose_goals(name, goals):
         sat, composed_contract = compose_contracts(contracts)
         if not sat:
             print "composition failed"
-            return None
+            return False, None
         composed_contract_list.append(composed_contract)
 
 

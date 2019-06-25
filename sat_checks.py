@@ -23,6 +23,52 @@ def sat_check(propositions):
 
 
 
+def is_refinement(contract_1, contract_2):
+    """
+    Check if A1 >= A2 and if G1 <= G2
+    """
+    a_check = is_contained_in(contract_2.get_assumptios(), contract_1.get_assumptions())
+    g_check = is_contained_in(contract_1.get_guarantees(), contract_2.get_gurantees())
+
+    return (a_check and g_check)
+
+
+def is_better_refinement(contract_1, contract_2):
+    #TODO: compare two refinements
+    return False
+
+
+
+def is_contained_in(prop_1, prop_2):
+    """
+    Checks if prop_1 is a refinement of prop_2
+    :param prop_1:
+    :param prop_2:
+    :return:
+
+    Example:
+    print "~~~~~ Refinement Check ~~~~~~"
+    x, y, z = Ints('x y z')
+
+    s1 = Function('S1', IntSort(), BoolSort())
+    s2 = Function('S2', IntSort(), BoolSort())
+
+    s.assert_and_track(ForAll(x, If(And(x < 5, x > 3), s1(x) == True, s1(x) == False)), "x < 5, x > 3")
+    s.assert_and_track(ForAll(y, If(And(y < 4, y > -2), s2(y) == True, s2(y) == False)), "y < 4, y > -2")
+
+    s.add(ForAll(y, Implies(s2(y), s1(y))))
+
+    print s.check()
+    print s.unsat_core()
+    """
+    s = Solver()
+    #TODO: refinement check
+
+    if prop_1 == False:
+        return True
+    return prop_1 == prop_2
+
+
 
 def consistency_check(goal):
     """Check Goal Consistency by satisfying the conjunction of all its guarantees

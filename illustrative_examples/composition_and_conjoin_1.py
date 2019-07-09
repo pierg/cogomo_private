@@ -14,8 +14,8 @@ h = Bool('h')
 i = Bool('i')
 
 # Goal 1
-goal_1 = GoalModel("goal_1", [Contract([a == True],
-                                       [b == True])])
+goal_1 = GoalModel("goal_1", Contract([a == True],
+                                       [b == True]))
 
 # Goal 2 shares the variable d with Goal_1 as assumption
 goal_2 = GoalModel("goal_2", [Contract([c == True],

@@ -1,5 +1,5 @@
-from contract_library import *
-from contracts.contract_model import *
+from contracts.contract_library import *
+from goal_model import *
 
 a1 = Bool('a1')
 a2 = Bool('a2')
@@ -23,7 +23,7 @@ o = Bool('o')
 
 
 
-component_library = ContractLibrary("cogomo")
+contract_library = ContractLibrary("cogomo")
 
 
 # Components
@@ -32,7 +32,6 @@ comp_1 = Contract([a1 == True, a2 == True], [b == True], "comp_1")
 comp_11 = Contract([a1 == True, a2 == True, a3 == True], [b == True, c == True], "comp_11")
 
 comp_12 = Contract([a1 == True, a3 == True], [b2 == True], "comp_12")
-
 
 
 comp_2 = Contract([c == True], [a1 == True], "comp_2")
@@ -51,15 +50,25 @@ comp_7 = Contract([l == True], [m == True], "comp_7")
 
 
 
-component_library.add_contracts([comp_1, comp_2, comp_3, comp_4, comp_5, comp_6, comp_7, comp_8, comp_9, comp_10, comp_11, comp_12])
+contract_library.add_contracts([comp_1, comp_2, comp_3, comp_4, comp_5, comp_6, comp_7, comp_8, comp_9, comp_10, comp_11, comp_12])
 
 # Synthesis specs
 # I don't know the assumptions
-spec_assumptions = [False]
+spec_assumptions = []
 spec_guarantees = [b == True, b2 == True]
 
-spec_contract = Contract(spec_assumptions, spec_guarantees)
+spec_contract = Contract(spec_assumptions, spec_guarantees, "spec_name")
 
-synthesisted_composition = component_library.synthetise(spec_contract)
+# Syntehsis from contract library
+list_of_contracts = contract_library.synthesize(spec_contract)
+
+# Synthesis a new goal directly
+refinement_goal = synthesize_goal(contract_library, spec_contract)
+
+
+print(refinement_goal)
+
+print("synthesis completed")
+
 
 

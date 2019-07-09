@@ -4,8 +4,14 @@ from contracts.sat_checks import *
 class Contract:
 
     def __init__(self, assumptions, guarantees, name=""):
-        self.assumptions = assumptions
-        self.guarantees = guarantees
+        if isinstance(assumptions, list):
+            self.assumptions = assumptions
+        else:
+            self.assumptions = [assumptions]
+        if isinstance(guarantees, list):
+            self.guarantees = guarantees
+        else:
+            self.guarantees = [guarantees]
         self.name = name
 
     def __str__(self):

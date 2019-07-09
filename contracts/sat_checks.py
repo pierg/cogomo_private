@@ -29,18 +29,18 @@ def is_refinement(contract_1, contract_2):
     return a_check and g_check
 
 
-def greedy_selection(top_level_component, candidate_compositions):
+def greedy_selection(top_level_contract, candidate_compositions):
     """
     Scan all the possible compositions and compute entropy and information gain for each of them,
     returns the element with more information gain
-    :param top_level_component:
-    :param candidate_compositions: list of list of components
-    :return: list of components
+    :param top_level_contract:
+    :param candidate_compositions: list of list of contracts
+    :return: list of contracts
     """
     best_candidate = None
     best_gain = 0
-    entropy_top = top_level_component.compute_entropy()
-    n_guarantee_assumtions_top = len(top_level_component.get_assumptions()) + len(top_level_component.get_guarantees())
+    entropy_top = top_level_contract.compute_entropy()
+    n_guarantee_assumtions_top = len(top_level_contract.get_assumptions()) + len(top_level_contract.get_guarantees())
     for candidate in candidate_compositions:
         candidate_gain = (
             entropy_top - (len(elem.get_guarantees()) / n_guarantee_assumtions_top) * elem.compute_entropy()

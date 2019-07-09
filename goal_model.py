@@ -10,8 +10,6 @@ class GoalModel:
                  parent_goal=None,
                  parent_operation=None):
 
-        if parent_goal is None:
-            parent_goal = []
         if sub_goals is None:
             sub_goals = []
         self.name = name
@@ -32,9 +30,12 @@ class GoalModel:
         self.parent_operation = parent_operation
 
     def __str__(self, level=0):
-        ret = "\t" * level + repr(self.name)
+        ret = "\t" * level + repr(self.name) + "\n"
         for contract in self.contracts:
-            ret += "(A: " + str(contract.get_assumptions()) + ", G: " + str(contract.get_guarantees()) + ") "
+            ret += "\t" * level + "A:\t" + \
+                   ', '.join(str(x) for x in contract.get_assumptions()).replace('\n', ' ').replace(' ', '') + "\n"
+            ret += "\t" * level + "G:\t" + \
+                   ', '.join(str(x) for x in contract.get_guarantees()).replace('\n', ' ').replace(' ', '') + "\n"
         ret += "\n"
         if len(self.sub_goals) > 0:
             ret += "\t" * level + "\t" + self.sub_operation + "\n"
@@ -50,8 +51,80 @@ class GoalModel:
     def get_name(self):
         return self.name
 
+    def get_subgoals_ops(self):
+        return self.sub_goals, self.sub_operation
+
     def get_contracts(self):
         return self.contracts
+
+    def substitute_goal(self, existing_goal, new_goal):
+        """
+        Search in the tree subgoals for existing_goal and substitutes it with new_goal,
+        after substituting it propagates the assumptions to the top of the tree and performs all the checks
+        :param existing_goal:
+        :param new_goal:
+        :return:
+        """
+        if self == existing_goal:
+
+            # Substitute the leaf node with the new contracts and sub_goals
+            self.contracts = new_goal.get_contracts()
+            self.sub_goals, self.sub_operation = new_goal.get_subgoals_ops()
+
+            # Update the parent contracts by composing/conjoining with the siblings
+            parent = self.parent_goal
+            updated = parent.update_tree()
+
+            return updated and True
+
+        if len(self.sub_goals) > 0:
+            for goal in self.sub_goals:
+                goal.substitute_goal(existing_goal, new_goal)
+        else:
+            print("Goal not found")
+            return False
+
+
+    def update_tree(self):
+        """
+        Recursively update tree bottom-up from the node
+        :return:
+        """
+        if self.sub_operation == "COMPOSITION":
+            contracts = {}
+
+            for goal in self.sub_goals:
+                contracts[goal.get_name()] = goal.get_contracts()
+
+            composition_contracts = (dict(zip(contracts, x)) for x in itertools.product(*contracts.itervalues()))
+
+            composed_contract_list = []
+            for contracts in composition_contracts:
+                satis, composed_contract = compose_contracts(contracts)
+                if not satis:
+                    print("update failed")
+                    return False
+                composed_contract_list.append(composed_contract)
+
+                self.contracts = composed_contract_list
+
+        elif self.sub_operation == "CONJUNCTION":
+            conjoined_contracts = []
+
+            for goal in self.sub_goals:
+                conjoined_contracts.append(goal.get_contracts())
+
+            # Flattening list TODO: maybe not needed
+            conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
+
+            self.contracts = conjoined_contracts
+
+        if self.parent_goal is not None:
+            self.parent_goal.update_tree()
+
+        return True
+
+
 
 
 class NotComposableError(Exception):
@@ -68,12 +141,30 @@ class NotConjoinableError(Exception):
     pass
 
 
+def synthesize_goal(contract_library, spec, name=""):
+    """
+    Synthesize a goal which is a composition of contracts from the contract library that refines spec
+    It also adds each contract as a subgoal, to keep track of the composition
+    :param name:
+    :param spec: Contract
+    :param contract_library:
+    :return: GoalModel
+    """
+    contract_list = contract_library.synthesize(spec)
+    goals_list = []
+    for contract in contract_list:
+        goals_list.append(GoalModel(contract.get_name(), contract))
+    satis, new_goal = compose_goals(goals_list, name)
+    if satis:
+        return new_goal
+
+
 def compose_goals(goals, name=None):
     """
 
     :param name: Name of the goal
     :param goals: List of goals to compose
-    :return: composed_goals if success otherwise
+    :return: True, composed_goals if successful
     """
 
     contracts = {}
@@ -91,7 +182,7 @@ def compose_goals(goals, name=None):
         satis, composed_contract = compose_contracts(contracts)
         if not satis:
             print("composition failed")
-            raise NotComposableError
+            return False, None
         composed_contract_list.append(composed_contract)
 
     # Creating a new Goal parent
@@ -103,7 +194,7 @@ def compose_goals(goals, name=None):
     for goal in goals:
         goal.set_parent(composed_goal, "COMPOSITION")
 
-    return composed_goal
+    return True, composed_goal
 
 
 def conjoin_goals(goals, name):

@@ -79,11 +79,11 @@ def compose_contracts(contracts):
     for a_elem in a_composition:
         for g_elem in g_composition:
             # For the moment we just compare identical elements,
-            # it should be if g_elem is bigger than a_element then -> remove them
+            # it should be if g_elem is a bigger set than a_element then -> simplify it from the assumptions
             if g_elem == a_elem:
                 print("Simplifying assumption " + str(a_elem))
                 a_composition_simplified.remove(a_elem)
-                g_composition_simplified.remove(g_elem)
+                # g_composition_simplified.remove(g_elem)
 
     return True, Contract(a_composition_simplified, g_composition_simplified)
 

@@ -38,7 +38,7 @@ print goal_4_5
 
 
 # Composing with the rest
-goal_41_51 = compose_goals([goal_1, goal_4_5], "goal_4123_5123")
+sat, goal_41_51 = compose_goals([goal_1, goal_4_5], "goal_4123_5123")
 
 print("\n\n")
 print goal_41_51

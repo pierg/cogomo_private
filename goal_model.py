@@ -80,9 +80,6 @@ class GoalModel:
         if len(self.sub_goals) > 0:
             for goal in self.sub_goals:
                 goal.substitute_goal(existing_goal, new_goal)
-        else:
-            print("Goal not found")
-            return False
 
 
     def update_tree(self):
@@ -113,8 +110,7 @@ class GoalModel:
 
             for goal in self.sub_goals:
                 conjoined_contracts.append(goal.get_contracts())
-
-            # Flattening list TODO: maybe not needed
+            # Flattening list
             conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
 
             self.contracts = conjoined_contracts
@@ -202,7 +198,6 @@ def conjoin_goals(goals, name):
 
     for goal in goals:
         conjoined_contracts.append(goal.get_contracts())
-
     # Flattening list
     conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
 

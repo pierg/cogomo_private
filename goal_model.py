@@ -113,6 +113,11 @@ class GoalModel:
             # Flattening list
             conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
 
+            sat = conjoin_contracts(conjoined_contracts)
+            if not sat:
+                print("conjoin failed")
+                return False
+
             self.contracts = conjoined_contracts
 
         if self.parent_goal is not None:
@@ -201,11 +206,10 @@ def conjoin_goals(goals, name):
     # Flattening list
     conjoined_contracts = [item for sublist in conjoined_contracts for item in sublist]
 
-    # TODO: fix checks on conjunction
-    # sat = conjoin_contracts(conjoined_contracts)
-    # if not sat:
-    #     print("conjoin failed"
-    #     return False, None
+    sat = conjoin_contracts(conjoined_contracts)
+    if not sat:
+        print("conjoin failed")
+        return False
 
     # Creating a new Goal parent
     conjoined_goal = GoalModel(name, conjoined_contracts,

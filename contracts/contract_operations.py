@@ -88,8 +88,18 @@ def compose_contracts(contracts):
     return True, Contract(a_composition_simplified, g_composition_simplified)
 
 
-def conjoin_contracts(contracts_dictionary):
-    # TODO: to fix checks on conjunction
+def conjoin_contracts(contracts):
+
+    contracts_dictionary = {}
+    # Transform list into a dictionary contract-name -> proposition
+    if isinstance(contracts, list):
+        for contract in contracts:
+            contracts_dictionary[contract.get_name()] = contract
+    elif isinstance(contracts, dict):
+        contracts_dictionary = contracts
+    else:
+        raise WrongParametersError
+
     assumptions = {}
     guarantees = {}
 
@@ -97,19 +107,12 @@ def conjoin_contracts(contracts_dictionary):
         assumptions[source_goal + "_assumptions"] = propositions.get_assumptions()
         guarantees[source_goal + "_guarantees"] = propositions.get_guarantees()
 
-    # CHECK SATISFIABILITY
-    satis, model = sat_check(merge_two_dicts(assumptions, guarantees))
-    if not satis:
-        print "The composition is unsatisfiable"
-        print "Fix the following conditions:\n" + str(model)
-        return False, model
-
     # CHECK CONSISTENCY
     satis, model = sat_check(guarantees)
     if not satis:
         print "The composition is inconsistent"
         print "Fix the following guarantees:\n" + str(model)
-        return False, model
+        return False
 
     print "The conjunction satisfiable."
 

@@ -1,6 +1,9 @@
 from contracts.sat_checks import *
 
 
+class VoidContractException(Exception):
+    pass
+
 class Contract:
 
     def __init__(self, assumptions, guarantees, name=""):
@@ -12,7 +15,20 @@ class Contract:
             self.guarantees = guarantees
         else:
             self.guarantees = [guarantees]
+
         self.name = name
+
+        # CHECK IF G ARE COINTAINED IN A
+        contracts_dictionary = {}
+        for name, contract in contracts_dictionary.items():
+            contracts_dictionary[name + "_assumptions"] = self.assumptions
+            contracts_dictionary[name + "_guarantees"] = self.guarantees
+
+        satis, model = sat_check(contracts_dictionary)
+        if not satis:
+            print "The contract is empty"
+            print "Fix the following conditions:\n" + str(model)
+            raise VoidContractException
 
     def __str__(self):
         print("\nASSUMPTIONS:   " + str(self.assumptions))

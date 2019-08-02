@@ -14,12 +14,16 @@ class GoalModel:
             sub_goals = []
         self.name = name
 
+        self.abstracted = False
+
         # Contracts is a list of Assumption/Guarantee pairs
         # Each element of the list is in conjunction with each other
         if not isinstance(contracts, list):
             self.contracts = [contracts]
         else:
             self.contracts = contracts
+
+        self.abstracted_contracts = []
 
         # List of children and its relationship with them (COMPOSITION / CONJUNCTION)
         self.sub_goals = sub_goals
@@ -36,6 +40,10 @@ class GoalModel:
                    ', '.join(str(x) for x in contract.get_assumptions()).replace('\n', ' ').replace(' ', '') + "\n"
             ret += "\t" * level + "G:\t" + \
                    ', '.join(str(x) for x in contract.get_guarantees()).replace('\n', ' ').replace(' ', '') + "\n"
+            if contract.is_abstracted():
+                ret += "\t" * level + "ABSTRACTED:\n"
+                ret += "\t" * level + "G:\t" + \
+                       ', '.join(str(x) for x in contract.get_abstract_guarantees()).replace('\n', ' ').replace(' ', '') + "\n"
         ret += "\n"
         if len(self.sub_goals) > 0:
             ret += "\t" * level + "\t" + self.sub_operation + "\n"
@@ -56,6 +64,7 @@ class GoalModel:
 
     def get_contracts(self):
         return self.contracts
+
 
     def substitute_goal(self, existing_goal, new_goal):
         """
@@ -155,12 +164,13 @@ def synthesize_goal(contract_library, spec, name=""):
     goals_list = []
     for contract in contract_list:
         goals_list.append(GoalModel(contract.get_name(), contract))
-    satis, new_goal = compose_goals(goals_list, name)
+    # Compose a new goal abstracting the top level goal to the guarantees provided by the designer
+    satis, new_goal = compose_goals(goals_list, name, abstract_on_guarantees=spec.get_guarantees())
     if satis:
         return new_goal
 
 
-def compose_goals(goals, name=None):
+def compose_goals(goals, name=None, abstract_on_guarantees=None):
     """
 
     :param name: Name of the goal
@@ -169,6 +179,7 @@ def compose_goals(goals, name=None):
     """
 
     contracts = {}
+    abstracted_contracts = {}
 
     for goal in goals:
         contracts[goal.get_name()] = goal.get_contracts()
@@ -180,7 +191,7 @@ def compose_goals(goals, name=None):
 
     composed_contract_list = []
     for contracts in composition_contracts:
-        satis, composed_contract = compose_contracts(contracts)
+        satis, composed_contract = compose_contracts(contracts, abstract_on_guarantees=abstract_on_guarantees)
         if not satis:
             print("composition failed")
             return False, None

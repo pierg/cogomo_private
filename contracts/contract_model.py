@@ -4,9 +4,12 @@ from contracts.sat_checks import *
 class VoidContractException(Exception):
     pass
 
+class AbstractionError(Exception):
+    pass
+
 class Contract:
 
-    def __init__(self, assumptions, guarantees, name=""):
+    def __init__(self, assumptions, guarantees, name="", abstract_guarantees=None):
         if isinstance(assumptions, list):
             self.assumptions = assumptions
         else:
@@ -15,6 +18,14 @@ class Contract:
             self.guarantees = guarantees
         else:
             self.guarantees = [guarantees]
+
+        if abstract_guarantees is not None:
+            if isinstance(assumptions, list):
+                self.abstract_guarantees = abstract_guarantees
+            else:
+                self.abstract_guarantees = [abstract_guarantees]
+        else:
+            self.abstract_guarantees = []
 
         self.name = name
 
@@ -49,6 +60,19 @@ class Contract:
 
         return True, self.assumptions
 
+    def is_abstracted(self):
+        return len(self.abstract_guarantees) > 0
+
+    def abstract_guarantee_if_exists(self, guarantee):
+        for g_complete in self.guarantees:
+            if g_complete == guarantee:
+                already_abstracted = False
+                for g_abstract in self.abstract_guarantees:
+                    if g_abstract == guarantee:
+                        already_abstracted = True
+                if already_abstracted is False:
+                    self.abstract_guarantees.append(guarantee)
+
     def set_assumptions(self, assumptions):
         self.assumptions = assumptions
         print self.assumptions
@@ -61,6 +85,9 @@ class Contract:
 
     def get_guarantees(self):
         return self.guarantees
+
+    def get_abstract_guarantees(self):
+        return self.abstract_guarantees
 
     # Not really an entropy. It's the ratio between guarantees and assumptions
     def compute_entropy(self):

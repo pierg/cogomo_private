@@ -29,6 +29,16 @@ def is_refinement(contract_1, contract_2):
     return a_check and g_check
 
 
+
+def is_g_abstraction(contract_1_g, contract_2_g):
+    """
+    Check contract_1_g is an abstraction of contract_2_g
+    """
+    g_check = is_contained_in(contract_1_g, contract_2_g)
+
+    return g_check
+
+
 def greedy_selection(top_level_contract, candidate_compositions):
     """
     Scan all the possible compositions and compute entropy and information gain for each of them,

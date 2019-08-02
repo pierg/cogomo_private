@@ -38,9 +38,7 @@ break_req = Real('break_req')
 acc_ego = Real('acc_ego')
 
 
-
 contract_library = ContractLibrary("cogomo")
-
 
 accelerometer = Contract(velocity_ego_t > 0, acc_ego > 0, "accelerometer")
 gps_sensor_1 = Contract(sig_gps == True, [latitude > 0, longitude > 0, gps_accuracy == 3], "gps_sensor_1")

@@ -2,6 +2,8 @@ from contract_model import *
 from sat_checks import *
 from utility import *
 
+import itertools
+
 
 class WrongParametersError(Exception):
     """
@@ -91,9 +93,7 @@ def compose_contracts(contracts, abstract_on_guarantees=None):
     # Compare each element in a_composition with each element in g_composition
     for a_elem in a_composition:
         for g_elem in g_composition:
-            # For the moment we just compare identical elements,
-            # TODO: It should be if g_elem is a bigger set than a_element then -> simplify it from the assumptions
-            if g_elem == a_elem:
+            if is_contained_in(a_elem, g_elem):
                 print("Simplifying assumption " + str(a_elem))
                 a_composition_simplified.remove(a_elem)
                 g_elem_list.append(g_elem)
@@ -141,6 +141,24 @@ def conjoin_contracts(contracts):
     else:
         raise WrongParametersError
 
+    for pair_contract in itertools.combinations(contracts, r=2):
+
+        assumptions = {}
+        guarantees = {}
+
+        for contract in pair_contract:
+            assumptions[contract.get_name() + "_assumptions"] = contract.get_assumptions()
+            guarantees[contract.get_name() + "_guarantees"] = contract.get_guarantees()
+
+        # Check if assumptions are not mutually exclusive
+        sat_1, model = sat_check(assumptions)
+        if sat_1:
+            sat_2, model = sat_check(guarantees)
+            if not sat_2:
+                print "The assumptions in the conjunction of contracts are not mutually exclusive"
+                print "Conflict with the following guarantees:\n" + str(model)
+                return False
+
     assumptions = {}
     guarantees = {}
 
@@ -148,12 +166,6 @@ def conjoin_contracts(contracts):
         assumptions[source_goal + "_assumptions"] = propositions.get_assumptions()
         guarantees[source_goal + "_guarantees"] = propositions.get_guarantees()
 
-    # CHECK CONSISTENCY
-    satis, model = sat_check(guarantees)
-    if not satis:
-        print "The composition is inconsistent"
-        print "Fix the following guarantees:\n" + str(model)
-        return False
 
     print "The conjunction satisfiable."
 

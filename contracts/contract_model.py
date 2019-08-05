@@ -29,17 +29,17 @@ class Contract:
 
         self.name = name
 
-        # CHECK IF G ARE COINTAINED IN A
-        contracts_dictionary = {}
-        for name, contract in contracts_dictionary.items():
-            contracts_dictionary[name + "_assumptions"] = self.assumptions
-            contracts_dictionary[name + "_guarantees"] = self.guarantees
+        # CHECK IF G AND A ARE NOT INCONSISTENT
+        # contract_dictionary = {}
+        # contract_dictionary[name + "_assumptions"] = self.assumptions
+        # contract_dictionary[name + "_guarantees"] = self.guarantees
+        # #
+        # satis, model = sat_check(contract_dictionary)
+        # if not satis:
+        #     print "The contract is inconsistent"
+        #     print "Fix the following conditions:\n" + str(model)
+        #     raise VoidContractException
 
-        satis, model = sat_check(contracts_dictionary)
-        if not satis:
-            print "The contract is empty"
-            print "Fix the following conditions:\n" + str(model)
-            raise VoidContractException
 
     def __str__(self):
         print("\nASSUMPTIONS:   " + str(self.assumptions))

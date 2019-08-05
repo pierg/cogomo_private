@@ -35,15 +35,17 @@ class GoalModel:
 
     def __str__(self, level=0):
         ret = "\t" * level + repr(self.name) + "\n"
-        for contract in self.contracts:
-            ret += "\t" * level + "A:\t" + \
+        for n, contract in enumerate(self.contracts):
+            if n > 0:
+                ret += "\t" * level + "\t/\\ \n"
+            ret += "\t" * level + "A:\t\t" + \
                    ', '.join(str(x) for x in contract.get_assumptions()).replace('\n', ' ').replace(' ', '') + "\n"
-            ret += "\t" * level + "G:\t" + \
+            ret += "\t" * level + "G:\t\t" + \
                    ', '.join(str(x) for x in contract.get_guarantees()).replace('\n', ' ').replace(' ', '') + "\n"
             if contract.is_abstracted():
-                ret += "\t" * level + "ABSTRACTED:\n"
-                ret += "\t" * level + "G:\t" + \
+                ret += "\t" * level + "G_abs:\t" + \
                        ', '.join(str(x) for x in contract.get_abstract_guarantees()).replace('\n', ' ').replace(' ', '') + "\n"
+
         ret += "\n"
         if len(self.sub_goals) > 0:
             ret += "\t" * level + "\t" + self.sub_operation + "\n"

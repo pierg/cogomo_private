@@ -1,14 +1,14 @@
 from z3 import *
 
 
-def sat_check(propositions):
+def sat_check(propositions_dictionary):
     """Check the satisfiability of the keys of the dictionary passed
     If satisfiabile it returns True and an assignment example
     If insatisfiabile it returns False and the list of elements generating the insatisfiability (unsat_core)"""
 
     s = Solver()
 
-    for name, value in propositions.items():
+    for name, value in propositions_dictionary.items():
         for elem in value:
             s.assert_and_track(elem, name + ": " + str(elem))
 
@@ -16,6 +16,68 @@ def sat_check(propositions):
     if str(satis) == "sat":
         return True, s.model()
     else:
+        return False, s.unsat_core()
+
+
+def sat_check_with_assumptions(contracts):
+    """Check the satisfiability of the keys of the dictionary passed
+    If satisfiabile it returns True and an assignment example
+    If insatisfiabile it returns False and the list of elements generating the insatisfiability (unsat_core)"""
+
+    s = Solver()
+
+    for contract in contracts:
+        for guarantee in contract.get_guarantees():
+            s.assert_and_track(Implies(And(contract.get_assumptions()), guarantee), contract.get_name() + ": "
+                               + str(contract.get_assumptions()) + "___"
+                               + str(guarantee))
+
+    print(s.assertions())
+    satis = s.check()
+    if str(satis) == "sat":
+        print s.model()
+        return True, s.model()
+    else:
+        return False, s.unsat_core()
+
+
+def get_counterexamples(propositions_list):
+
+    s = Solver()
+    s.add(Not(And(propositions_list)))
+
+    r = s.check()
+
+    if r == unsat:
+        print("the formula is proven, no counterexample found")
+        return None
+    elif r == unknown:
+        print("failed to prove")
+        print(s.model())
+        return None
+    else:
+        print("counterexample")
+        print(s.model())
+        return s.model()
+
+def sat_check_simple(propositions_list):
+
+    s = Solver()
+
+    if isinstance(propositions_list, list):
+        for value in propositions_list:
+            s.assert_and_track(value, str(value))
+
+    else:
+        s.assert_and_track(propositions_list, str(propositions_list))
+
+    r = s.check()
+    if r == sat:
+        print "SAT"
+        print s.model()
+        return True, None
+    else:
+        print "UNSAT\nunsat_core:\n" + str(s.unsat_core())
         return False, s.unsat_core()
 
 
@@ -65,25 +127,8 @@ def is_contained_in(prop_1, prop_2):
     Checks if prop_1 is contained in prop_2, i.e. prop_2 is a bigger set
     :param prop_1: single proposition or list of propositions
     :param prop_2: single proposition or list of propositions
-    :return:
-
-    Example:
-    print("~~~~~ Refinement Check ~~~~~~"
-    x, y, z = Ints('x y z')
-
-    s1 = Function('S1', IntSort(), BoolSort())
-    s2 = Function('S2', IntSort(), BoolSort())
-
-    s.assert_and_track(ForAll(x, If(And(x < 5, x > 3), s1(x) == True, s1(x) == False)), "x < 5, x > 3")
-    s.assert_and_track(ForAll(y, If(And(y < 4, y > -2), s2(y) == True, s2(y) == False)), "y < 4, y > -2")
-
-    s.add(ForAll(y, Implies(s2(y), s1(y))))
-
-    print s.check()
-    print s.unsat_core()
+    :return: True if prop_1 is a refinement of prop_2
     """
-    # TODO: proper refinement check
-    # s = Solver()
 
     # convert to list
     if not isinstance(prop_1, list):
@@ -95,10 +140,26 @@ def is_contained_in(prop_1, prop_2):
     if False in prop_2:
         return True
 
-    # Checks if prop_1 contains at least all the elements of prop_2
-    result = all(elem in prop_1 for elem in prop_2)
+    # Checks if prop_1 contains at least all the elements of prop_2 (OLD refinement = equal check)
+    # result = all(elem in prop_1 for elem in prop_2)
 
-    return result
+    refinement = And(prop_1)
+    abstract = And(prop_2)
+
+    s = Solver()
+    s.add(Not(Implies(refinement, abstract)))
+    r = s.check()
+    if r == unsat:
+        return True
+    elif r == unknown:
+        # print("failed to prove")
+        # print(s.model())
+        return False
+    else:
+        # print("counterexample")
+        # print(s.model())
+        return False
+
 
 
 def consistency_check(goal):

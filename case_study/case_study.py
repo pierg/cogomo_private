@@ -4,66 +4,124 @@ from case_study_variables import *
 
 
 
-# Goals
-# FOLLOWING
+a_accelerate_distance = [distance_front > D_platoon]
+g_accelerate_distance = velocity_ego_t1 > velocity_ego_t
+goal_accelerate_distance = GoalModel("accelerate_distance",
+                                     Contract(a_accelerate_distance, g_accelerate_distance,
+                                              name = "accelerate_distance"))
+
+a_decellerate_distance = [distance_front < D_platoon]
+g_decellerate_distance = velocity_ego_t1 < velocity_ego_t
+goal_decellerate_distance = GoalModel("decellerate_distance",
+                                      Contract(a_decellerate_distance, g_decellerate_distance,
+                                               name = "decellerate_distance"))
+
+a_maintainspeed_distance = [distance_front == D_platoon]
+g_maintainspeed_distance = velocity_ego_t1 == velocity_ego_t
+goal_maintainspeed_distance = GoalModel("maintainspeed_distance",
+                                        Contract(a_maintainspeed_distance, g_maintainspeed_distance,
+                                                 name="maintainspeed_distance"))
+
+
+goal_keep_short_distance = conjoin_goals([goal_accelerate_distance, goal_decellerate_distance, goal_maintainspeed_distance], "keep_short_distance")
+
+
+print(goal_keep_short_distance)
+
+
+a_accelerate_follow = [velocity_ego_t < velocity_lea]
+g_accelerate_follow = velocity_ego_t1 > velocity_ego_t
+goal_accelerate_follow = GoalModel("accelerate_follow", Contract(a_accelerate_follow, g_accelerate_follow))
+
+
+a_decellerate_follow = [velocity_ego_t > velocity_lea]
+g_decellerate_follow = velocity_ego_t1 < velocity_ego_t
+goal_decellerate_follow = GoalModel("decellerate_follow", Contract(a_decellerate_follow, g_decellerate_follow))
+
+
+
+a_maintainspeed_follow = [velocity_ego_t == velocity_lea]
+g_maintainspeed_follow = velocity_ego_t1 == velocity_ego_t
+goal_maintainspeed_follow = GoalModel("maintainspeed_follow", Contract(a_maintainspeed_follow, g_maintainspeed_follow))
+
+
+goal_follow_leader = conjoin_goals([goal_accelerate_follow, goal_decellerate_follow, goal_maintainspeed_follow], "follow_leader")
+
+print goal_follow_leader
+
+goal_platooning = conjoin_goals([goal_keep_short_distance, goal_follow_leader], "platooning")
+
+
+print("Fixing them..")
+
+
+a_accelerate_distance = [distance_front != D_platoon, distance_front > D_platoon]
+g_accelerate_distance = velocity_ego_t1 > velocity_ego_t
+goal_accelerate_distance = GoalModel("accelerate_distance",
+                                     Contract(a_accelerate_distance, g_accelerate_distance,
+                                              name = "accelerate_distance"))
+
+a_decellerate_distance = [distance_front != D_platoon, distance_front < D_platoon]
+g_decellerate_distance = velocity_ego_t1 < velocity_ego_t
+goal_decellerate_distance = GoalModel("decellerate_distance",
+                                      Contract(a_decellerate_distance, g_decellerate_distance,
+                                               name = "decellerate_distance"))
+
+
+goal_keep_short_distance = conjoin_goals([goal_accelerate_distance, goal_decellerate_distance], "keep_short_distance")
+
+
+print(goal_keep_short_distance)
+
+
+a_accelerate_follow = [distance_front == D_platoon, velocity_ego_t < velocity_lea]
+g_accelerate_follow = velocity_ego_t1 > velocity_ego_t
+goal_accelerate_follow = GoalModel("accelerate_follow", Contract(a_accelerate_follow, g_accelerate_follow))
+
+
+a_decellerate_follow = [distance_front == D_platoon, velocity_ego_t > velocity_lea]
+g_decellerate_follow = velocity_ego_t1 < velocity_ego_t
+goal_decellerate_follow = GoalModel("decellerate_follow", Contract(a_decellerate_follow, g_decellerate_follow))
+
+
+
+a_maintainspeed_follow = [distance_front == D_platoon, velocity_ego_t == velocity_lea]
+g_maintainspeed_follow = velocity_ego_t1 == velocity_ego_t
+goal_maintainspeed_follow = GoalModel("maintainspeed_follow", Contract(a_maintainspeed_follow, g_maintainspeed_follow))
+
+
+goal_follow_leader = conjoin_goals([goal_accelerate_follow, goal_decellerate_follow, goal_maintainspeed_follow], "follow_leader")
+
+print goal_follow_leader
+
+goal_following = conjoin_goals([goal_keep_short_distance, goal_follow_leader], "following")
+
+print goal_following
+
+
+# Measuing Distance
 a_measure_distance = []             # The designer doesn't know the assumptions
 g_measure_distance = [(distance_front > 0),
                       Implies(distance_front > distance_real, (distance_front - distance_real) < Delta_m),
                       Implies(distance_front <= distance_real, (distance_real - distance_front) <= Delta_m)]
 goal_measure_distance = GoalModel("measure_distance", Contract(a_measure_distance, g_measure_distance))
 
-
-a_keep_short_distance = [distance_front > 0]
-g_keep_short_distance = [ForAll(distance_front, If(distance_front > D_platoon, velocity_ego_t1 > velocity_ego_t,
-                                                   If(distance_front == D_platoon, velocity_ego_t1 == velocity_ego_t,
-                                                      velocity_ego_t1 < velocity_ego_t)))]
-goal_keep_short_distance = GoalModel("keep_short_distance", Contract(a_keep_short_distance, g_keep_short_distance))
-
-
+# Communicate di the Leader
 a_communicate_leader = [sig_network, sig_rssi > RSSI_net]
 g_communicate_leader = [velocity_lea >= 0, steering_lea <= 1, steering_lea >= -1]
 goal_communicate_leader = GoalModel("communicate_leader", Contract(a_communicate_leader, g_communicate_leader))
 
 
-a_follow_leader = [velocity_lea >= 0]
-g_follow_leader = [velocity_ego_t1 == velocity_lea, velocity_ego_t == velocity_lea]
-goal_follow_leader = GoalModel("follow_leader", Contract(a_follow_leader, g_follow_leader))
 
-
-composable, following_goal = compose_goals([goal_measure_distance,
-                                            goal_keep_short_distance,
-                                            goal_communicate_leader,
-                                            goal_follow_leader], "following")
+composable, goal_following_mode = compose_goals([goal_following, goal_measure_distance, goal_communicate_leader], "following_mode")
 
 if composable:
-    print following_goal
-
-else:
-    # Fixing the guarantees
-    g_keep_short_distance = [Implies(
-And(distance_front <= D_platoon + Epsilon_d, distance_front >= D_platoon - Epsilon_d),
-        ForAll(distance_front, If(distance_front > D_platoon, velocity_ego_t1 > velocity_ego_t,
-                                  If(distance_front == D_platoon, velocity_ego_t1 == velocity_ego_t, velocity_ego_t1 < velocity_ego_t))))]
-    goal_keep_short_distance = GoalModel("keep_short_distance", Contract(a_keep_short_distance, g_keep_short_distance))
-
-    g_follow_leader = [Implies(
-        Or(distance_front > D_platoon + Epsilon_d, distance_front < D_platoon - Epsilon_d),
-        velocity_ego_t1 == velocity_lea, velocity_ego_t == velocity_lea)]
-    goal_follow_leader = GoalModel("follow_leader", Contract(a_follow_leader, g_follow_leader))
-
-    composable, following_goal = compose_goals([goal_measure_distance,
-                                          goal_keep_short_distance,
-                                          goal_communicate_leader,
-                                          goal_follow_leader], "following")
-
-    if composable:
-        print("\n\n------------------------FOLLOWING---------------------------------------")
-        print following_goal
-        print("------------------------\FOLLOWING---------------------------------------")
+    print("\n\n------------------------LEADING---------------------------------------")
+    print goal_following_mode
+    print("------------------------\LEADING---------------------------------------")
 
 
 
-# Synthesis of "Measure Distance Goal"
 
 
 # LEADING
@@ -95,7 +153,7 @@ if composable:
 
 # Conjoining them together
 
-platooning = conjoin_goals([following_goal, leading_goal], "platooning")
+platooning = conjoin_goals([goal_following_mode, leading_goal], "platooning")
 
 print("\n\n------------------------PLATOONING---------------------------------------")
 print platooning

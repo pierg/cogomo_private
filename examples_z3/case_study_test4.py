@@ -61,9 +61,9 @@ assertions = [
     Implies(distance_front == D_platoon, maintain_speed(velocity_ego_t, velocity_ego_t1) == True),
     Implies(distance_front > D_platoon, decrease_speed(velocity_ego_t, velocity_ego_t1) == True),
     #
-    # Implies(velocity_ego_t < velocity_lea, increase_speed(velocity_ego_t, velocity_ego_t1) == True),
-    # Implies(velocity_ego_t == velocity_lea, maintain_speed(velocity_ego_t, velocity_ego_t1) == True),
-    # Implies(velocity_ego_t > velocity_lea, decrease_speed(velocity_ego_t, velocity_ego_t1) == True)
+    Implies(velocity_ego_t < velocity_lea, increase_speed(velocity_ego_t, velocity_ego_t1) == True),
+    Implies(velocity_ego_t == velocity_lea, maintain_speed(velocity_ego_t, velocity_ego_t1) == True),
+    Implies(velocity_ego_t > velocity_lea, decrease_speed(velocity_ego_t, velocity_ego_t1) == True),
 
     # If(distance_front > 0, increase_speed(velocity_ego_t, velocity_ego_t1) == True, increase_speed(velocity_ego_t, velocity_ego_t1) == False),
     # If(distance_front > 0, decrease_speed(velocity_ego_t, velocity_ego_t1) == True, decrease_speed(velocity_ego_t, velocity_ego_t1) == False)
@@ -132,7 +132,6 @@ x, x1, y, z = Ints('x x1 y z')
 
 assertions_test = [
     x > x1,
-
     x == z,
     x1 == z
 ]
@@ -143,12 +142,15 @@ assumptions = [
 
 ]
 
-sat, unsat_core = sat_check_simple(assertions_test)
+
+
+# TEST
+sat, unsat_core = sat_check_simple(assertionsUNSAT2)
 print("\n...\n")
 if not sat:
     get_counterexamples(unsat_core)
 else:
-    get_counterexamples(assertions_test)
+    get_counterexamples(assertionsUNSAT2)
 
 
 # get_counterexamples(Implies(And(assumptions), And(assertions)))

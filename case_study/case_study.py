@@ -39,7 +39,6 @@ g_decellerate_follow = velocity_ego_t1 < velocity_ego_t
 goal_decellerate_follow = GoalModel("decellerate_follow", Contract(a_decellerate_follow, g_decellerate_follow))
 
 
-
 a_maintainspeed_follow = [velocity_ego_t == velocity_lea]
 g_maintainspeed_follow = velocity_ego_t1 == velocity_ego_t
 goal_maintainspeed_follow = GoalModel("maintainspeed_follow", Contract(a_maintainspeed_follow, g_maintainspeed_follow))

@@ -90,4 +90,4 @@ def run_16_4():
 
 
 if __name__ == '__main__':
-    run_4_4()
+    run_16_4()

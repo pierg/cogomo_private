@@ -42,4 +42,4 @@ def run_2_8():
 
 
 if __name__ == '__main__':
-    run_4_4()
+    run_2_8()

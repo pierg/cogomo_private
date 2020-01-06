@@ -72,7 +72,7 @@ def gen_file(n_props, n_comps):
                             
                         
                         if __name__ == '__main__':
-                            run_4_4()
+                            run_{0}_{1}()
                         ''').format(n_props, n_comps))
 
 

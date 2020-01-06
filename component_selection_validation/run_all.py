@@ -82,5 +82,3 @@ if __name__ == '__main__':
 	time = run_16_32()
 	sys.stdout = sys.__stdout__
 	print('	16_32		' + str(time))
-
-

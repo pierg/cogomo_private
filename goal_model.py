@@ -104,7 +104,7 @@ class GoalModel:
             for goal in self.sub_goals:
                 contracts[goal.get_name()] = goal.get_contracts()
 
-            composition_contracts = (dict(zip(contracts, x)) for x in itertools.product(*contracts.itervalues()))
+            composition_contracts = (dict(list(zip(contracts, x))) for x in itertools.product(*iter(contracts.values())))
 
             composed_contract_list = []
             for contracts in composition_contracts:
@@ -187,9 +187,9 @@ def compose_goals(goals, name=None, abstract_on_guarantees=None):
         contracts[goal.get_name()] = goal.get_contracts()
 
     if name is None:
-        name = '_'.join("{!s}".format(key) for (key, val) in contracts.items())
+        name = '_'.join("{!s}".format(key) for (key, val) in list(contracts.items()))
 
-    composition_contracts = (dict(zip(contracts, x)) for x in itertools.product(*contracts.itervalues()))
+    composition_contracts = (dict(list(zip(contracts, x))) for x in itertools.product(*iter(contracts.values())))
 
     composed_contract_list = []
     for contracts in composition_contracts:

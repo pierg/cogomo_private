@@ -125,7 +125,8 @@ class ContractLibrary:
             candidates = defaultdict(list)
             for assumption in refining_assumptions:
                 for contract in self.contracts:
-                    if is_contained_in(assumption, contract.get_guarantees()):
+                    # if is_contained_in(assumption, contract.get_guarantees()):
+                    if is_contained_in(contract.get_guarantees(), assumption):
                         candidates[assumption].append(contract)
 
             if len(candidates) == 0:

@@ -9,7 +9,7 @@ class AbstractionError(Exception):
 
 class Contract:
 
-    def __init__(self, assumptions, guarantees, name="", abstract_guarantees=None):
+    def __init__(self, assumptions=None, guarantees=None, name="", abstract_guarantees=None):
         if isinstance(assumptions, list):
             self.assumptions = assumptions
         else:
@@ -28,17 +28,6 @@ class Contract:
             self.abstract_guarantees = []
 
         self.name = name
-
-        # CHECK IF G AND A ARE NOT INCONSISTENT
-        # contract_dictionary = {}
-        # contract_dictionary[name + "_assumptions"] = self.assumptions
-        # contract_dictionary[name + "_guarantees"] = self.guarantees
-        # #
-        # satis, model = sat_check(contract_dictionary)
-        # if not satis:
-        #     print "The contract is inconsistent"
-        #     print "Fix the following conditions:\n" + str(model)
-        #     raise VoidContractException
 
 
     def __str__(self):

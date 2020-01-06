@@ -1,0 +1,27 @@
+{
+  "name": "platooning",
+  "variabls": [
+
+  ],
+  "goals": [
+        {
+            "name": "accelerate_distance",
+            "description": "accelerate when the distance to the vehicle in front is bigger than the desired distance",
+            "assumptions": "distance_front > D_platoon",
+            "guarantees": "velocity_ego_t1 > velocity_ego_t"
+        },
+        {
+            "name": "decellerate_distance",
+            "description": "decellerate when the distance to the vehicle in front is smaller than the desired distance",
+            "assumptions": "distance_front < D_platoon",
+            "guarantees": "velocity_ego_t1 < velocity_ego_t"
+        },
+        {
+            "name": "maintainspeed_distance",
+            "description": "keep the speed when the distance to the vehicle in front is the desired distance",
+            "assumptions": "distance_front == D_platoon",
+            "guarantees": "velocity_ego_t1 == velocity_ego_t"
+        }
+  ]
+}
+

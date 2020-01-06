@@ -1,0 +1,6 @@
+
+
+CGT:
+    CONJ:
+        following
+        leading
